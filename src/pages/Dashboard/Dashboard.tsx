@@ -6,14 +6,14 @@ import {
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from '@web3-react/injected-connector';
 
-import { injected } from '../../connectors';
-import { useEagerConnect, useInactiveListener } from '../../hooks';
+import { injected } from 'core/connectors';
+
+import Account from 'components/Account';
+import ChainId from 'components/ChainId';
+import { Spinner } from 'components/Spinner';
 
 import './App.css';
 import logo from './logo.svg';
-import ChainId from '../../components/ChainId';
-import { Spinner } from '../../components/Spinner';
-import Account from '../../components/Account';
 
 enum ConnectorNames {
   Injected = 'Injected',
@@ -40,25 +40,11 @@ function Dashboard() {
   const context = useWeb3React<Web3Provider>();
   const { connector, activate, deactivate, active, error } = context;
 
-  // handle logic to recognize the connector currently being activated
-  const [activatingConnector, setActivatingConnector] = React.useState<any>();
-  React.useEffect(() => {
-    if (activatingConnector && activatingConnector === connector) {
-      setActivatingConnector(undefined);
-    }
-  }, [activatingConnector, connector]);
-
-  // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
-  const triedEager = useEagerConnect();
-
-  // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
-  useInactiveListener(!triedEager || !!activatingConnector);
-
   const name = ConnectorNames.Injected;
   const currentConnector = connectorsByName[name];
-  const activating = currentConnector === activatingConnector;
+  const activating = false;
   const connected = currentConnector === connector;
-  const disabled = !triedEager || !!activatingConnector || connected || !!error;
+  const disabled = connected || !!error;
 
   return (
     <div className="App">
@@ -76,12 +62,7 @@ function Dashboard() {
           }}
           disabled={disabled}
           onClick={() => {
-            setActivatingConnector(currentConnector);
-            activate(connectorsByName[name], (error) => {
-              if (error) {
-                setActivatingConnector(undefined);
-              }
-            });
+            activate(connectorsByName[name], console.error);
           }}
         >
           <div
