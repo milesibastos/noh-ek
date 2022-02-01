@@ -1,4 +1,3 @@
-import React from 'react';
 import { useWeb3React, UnsupportedChainIdError } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import {
@@ -13,7 +12,8 @@ import ChainId from 'components/ChainId';
 import { Spinner } from 'components/Spinner';
 
 import './App.css';
-import logo from './logo.svg';
+
+import useVenus from 'core/hooks/useVenus';
 
 enum ConnectorNames {
   Injected = 'Injected',
@@ -39,6 +39,7 @@ function getErrorMessage(error: Error) {
 function Dashboard() {
   const context = useWeb3React<Web3Provider>();
   const { connector, activate, deactivate, active, error } = context;
+  const { supplyBalance, borrowBalance, borrowLimit } = useVenus();
 
   const name = ConnectorNames.Injected;
   const currentConnector = connectorsByName[name];
@@ -49,9 +50,13 @@ function Dashboard() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
         <Account />
         <ChainId />
+
+        <div>Supply Balance: {supplyBalance.toString()}</div>
+        <div>Borrow Limit: {borrowLimit.toString()}</div>
+        <div>Borrow Balance: {borrowBalance.toString()}</div>
+
         <button
           style={{
             height: '3rem',
@@ -91,36 +96,28 @@ function Dashboard() {
           </div>
           {name}
         </button>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          {(active || error) && (
-            <button
-              style={{
-                height: '3rem',
-                marginTop: '2rem',
-                borderRadius: '1rem',
-                borderColor: 'red',
-                cursor: 'pointer',
-              }}
-              onClick={() => {
-                deactivate();
-              }}
-            >
-              Deactivate
-            </button>
-          )}
+        {(active || error) && (
+          <button
+            style={{
+              height: '3rem',
+              marginTop: '2rem',
+              borderRadius: '1rem',
+              borderColor: 'red',
+              cursor: 'pointer',
+            }}
+            onClick={() => {
+              deactivate();
+            }}
+          >
+            Deactivate
+          </button>
+        )}
 
-          {!!error && (
-            <h4 style={{ marginTop: '1rem', marginBottom: '0' }}>
-              {getErrorMessage(error)}
-            </h4>
-          )}
-        </div>
+        {!!error && (
+          <h4 style={{ marginTop: '1rem', marginBottom: '0' }}>
+            {getErrorMessage(error)}
+          </h4>
+        )}
       </header>
     </div>
   );

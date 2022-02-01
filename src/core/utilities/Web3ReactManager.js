@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useWeb3React } from '@web3-react/core';
+import { useEagerConnect, useInactiveListener } from '../hooks/wallet';
 
-import { useEagerConnect, useInactiveListener } from 'core/hooks/wallet';
-
-const Web3ReactManager: React.FC = ({ children }) => {
+export default function Web3ReactManager({ children }) {
   const context = useWeb3React();
-  const { connector, chainId, active, error } = context;
+  const { connector, chainId, active, networkError } = context;
   const triedEager = useEagerConnect();
 
   // handle logic to recognize the connector currently being activated
@@ -26,11 +25,10 @@ const Web3ReactManager: React.FC = ({ children }) => {
   }
 
   // if the account context isn't active, and there's an error on the network context, it's an irrecoverable error
-  if (!active && error) {
-    console.error('unknownError');
+  if (!active && networkError) {
+    console.log('unknownError');
     return <>unknownError</>;
   }
-  return <>{children}</>;
-};
 
-export default Web3ReactManager;
+  return children;
+}
