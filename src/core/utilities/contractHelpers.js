@@ -29,7 +29,7 @@ import * as constants from './constants';
 
 const getContract = (abi, address, web3) => {
   const { library } = web3;
-  const signer = library.getSigner();
+  const signer = library?.getSigner();
   return new Contract(address, abi, signer);
 };
 
